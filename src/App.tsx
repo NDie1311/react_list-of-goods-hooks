@@ -1,7 +1,6 @@
-import React from 'react';
+import { useState } from 'react';
 import 'bulma/css/bulma.css';
 import './App.scss';
-import { useState } from 'react';
 
 export const goodsFromServer = [
   'Dumplings',
@@ -22,13 +21,15 @@ enum SortType {
   Length = 'length',
 }
 
+type ButtonType = 'info' | 'success' | 'warning' | 'danger';
+
 export const App = () => {
   const [goods, setGoods] = useState(goodsFromServer);
   const [activeSort, setActiveSort] = useState<SortType>(SortType.None);
   const [isReversed, setIsReversed] = useState(false);
 
   const sortAlphabetically = () => {
-    const sorted = [...goods].sort((a, b) => a.localeCompare(b));
+    const sorted = [...goodsFromServer].sort((a, b) => a.localeCompare(b));
 
     setGoods(isReversed ? sorted.reverse() : sorted);
     setActiveSort(SortType.Alphabetical);
@@ -60,20 +61,19 @@ export const App = () => {
     setIsReversed(false);
   };
 
-  const getButtonClass = (type: string) => {
-    if (type === 'info') {
-      return `button is-${type} ${activeSort === SortType.Alphabetical ? '' : 'is-light'}`;
-    }
+  const getButtonClass = (type: ButtonType) => {
+    const baseClass = `button is-${type}`;
 
-    if (type === 'success') {
-      return `button is-${type} ${activeSort === SortType.Length ? '' : 'is-light'}`;
+    switch (type) {
+      case 'info':
+        return `${baseClass} ${activeSort === SortType.Alphabetical ? '' : 'is-light'}`;
+      case 'success':
+        return `${baseClass} ${activeSort === SortType.Length ? '' : 'is-light'}`;
+      case 'warning':
+        return `${baseClass} ${isReversed ? '' : 'is-light'}`;
+      default:
+        return baseClass;
     }
-
-    if (type === 'warning') {
-      return `button is-${type} ${isReversed ? '' : 'is-light'}`;
-    }
-
-    return `button is-${type}`;
   };
 
   const isOriginalOrder = activeSort === SortType.None && !isReversed;

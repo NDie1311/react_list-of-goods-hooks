@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import 'bulma/css/bulma.css';
 import './App.scss';
+import { useState } from 'react';
 
 export const goodsFromServer = [
   'Dumplings',
@@ -16,20 +16,18 @@ export const goodsFromServer = [
 ];
 
 enum SortType {
-  None = 'none',
+  Default = 'default',
   Alphabetical = 'alpha',
   Length = 'length',
 }
 
-type ButtonType = 'info' | 'success' | 'warning' | 'danger';
-
 export const App = () => {
   const [goods, setGoods] = useState(goodsFromServer);
-  const [activeSort, setActiveSort] = useState<SortType>(SortType.None);
+  const [activeSort, setActiveSort] = useState(SortType.Default);
   const [isReversed, setIsReversed] = useState(false);
 
   const sortAlphabetically = () => {
-    const sorted = [...goodsFromServer].sort((a, b) => a.localeCompare(b));
+    const sorted = [...goods].sort((a, b) => a.localeCompare(b));
 
     setGoods(isReversed ? sorted.reverse() : sorted);
     setActiveSort(SortType.Alphabetical);
@@ -37,9 +35,11 @@ export const App = () => {
 
   const sortByLength = () => {
     const sorted = [...goodsFromServer].sort((a, b) => {
+      // Primary criterion: length
       if (a.length !== b.length) {
         return a.length - b.length;
       }
+      // Secondary criterion: alphabetical
 
       return a.localeCompare(b);
     });
@@ -57,26 +57,32 @@ export const App = () => {
 
   const resetList = () => {
     setGoods(goodsFromServer);
-    setActiveSort(SortType.None);
+    setActiveSort(SortType.Default);
     setIsReversed(false);
   };
 
-  const getButtonClass = (type: ButtonType) => {
-    const baseClass = `button is-${type}`;
-
-    switch (type) {
-      case 'info':
-        return `${baseClass} ${activeSort === SortType.Alphabetical ? '' : 'is-light'}`;
-      case 'success':
-        return `${baseClass} ${activeSort === SortType.Length ? '' : 'is-light'}`;
-      case 'warning':
-        return `${baseClass} ${isReversed ? '' : 'is-light'}`;
-      default:
-        return baseClass;
+  const getButtonClass = (type: string) => {
+    // Key change: Each button has its own highlighting logic without unnecessary else
+    if (type === 'info') {
+      // Alphabetical sort button - highlight when alpha sort is active
+      return `button is-${type} ${activeSort === SortType.Alphabetical ? '' : 'is-light'}`;
     }
+
+    if (type === 'success') {
+      // Length sort button - highlight when length sort is active
+      return `button is-${type} ${activeSort === SortType.Length ? '' : 'is-light'}`;
+    }
+
+    if (type === 'warning') {
+      // Reverse button - highlight when reversed
+      return `button is-${type} ${isReversed ? '' : 'is-light'}`;
+    }
+    // Reset button - no special highlighting
+
+    return `button is-${type}`;
   };
 
-  const isOriginalOrder = activeSort === SortType.None && !isReversed;
+  const isOriginalOrder = activeSort === SortType.Default && !isReversed;
 
   return (
     <div className="section content">
